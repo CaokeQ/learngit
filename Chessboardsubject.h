@@ -17,6 +17,8 @@ static int chess_Y();
 static int chess_whowin(void);
 
 
+//version:git test
+
 
 
 
