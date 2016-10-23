@@ -2,7 +2,12 @@
 
 This programm achieve the Gobang  which can play in LAN
 
-[TOC]
+[ChessSubject](ChessSubject)
+
+[tcp_socket](TCP_SOCKET)
+
+[main](#main)
+
 
 
 ### ChessSubject
