@@ -2,12 +2,10 @@
 
 This programm achieve the Gobang  which can play in LAN
 
-
-
-
 [TOC]
 
- ### ChessSubject
+
+### ChessSubject
 - Declaration
 ```C
 #define BLACK 1
