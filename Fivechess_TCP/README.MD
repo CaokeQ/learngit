@@ -4,13 +4,13 @@ This programm achieve the Gobang  which can play in LAN
 
 
 
-[ChessSubject](#1)
+[ChessSubject](#ChessSubject)
 
-[tcp_socket](#2)
+[tcp_socket](#TCP_SOCKET)
 
-[main](#3)
+[main](#main)
 
-###1.ChessSubject
+###ChessSubject
 - Declaration
 ```C
 #define BLACK 1
@@ -24,7 +24,7 @@ void chessboard_DrawW(int x, int y);
 void chessboard_init();
 void chess_start(SOCKET s);
 ```
-###2.TCP_SOCKET
+###TCP_SOCKET
 - Declaration
 ```C
 typedef struct BackupTcp_
@@ -39,7 +39,7 @@ void WINSOCK_Startup();
 void tcp_Connecting(BackupTcp *tcp_client);
 ```
 
-###3.main
+###main
 - Realization
 ```c
 	chessboard_init();
