@@ -2,15 +2,15 @@
 
 This programm achieve the Gobang  which can play in LAN
 
-[ChessSubject](#ChessSubject)
-
-[tcp_socket](#TCP_SOCKET)
-
-[main](#main)
 
 
+[ChessSubject](#1)
 
-###ChessSubject
+[tcp_socket](#2)
+
+[main](#3)
+
+### 1.ChessSubject
 - Declaration
 ```C
 #define BLACK 1
@@ -24,11 +24,7 @@ void chessboard_DrawW(int x, int y);
 void chessboard_init();
 void chess_start(SOCKET s);
 ```
-
-
-
-
-###TCP_SOCKET
+### 2.TCP_SOCKET
 - Declaration
 ```C
 typedef struct BackupTcp_
@@ -42,7 +38,8 @@ typedef struct BackupTcp_
 void WINSOCK_Startup();
 void tcp_Connecting(BackupTcp *tcp_client);
 ```
-###main
+
+### 3.main
 - Realization
 ```c
 	chessboard_init();
