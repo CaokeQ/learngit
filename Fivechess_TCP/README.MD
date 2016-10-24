@@ -24,6 +24,9 @@ void chessboard_DrawW(int x, int y);
 void chessboard_init();
 void chess_start(SOCKET s);
 ```
+- Explain
+	- **chessboard[][]** will store the information of chessboard,when Black play a chess in [x][y],the **chessboard[x][y]==BLACK**.Then call the **chessboard_DrawB** to draw a black chess.White also. 
+	
 ###TCP_SOCKET
 - Declaration
 ```C
