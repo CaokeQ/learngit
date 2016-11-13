@@ -1,0 +1,132 @@
+#include "userprog/syscall.h"
+#include <stdio.h>
+#include <syscall-nr.h>
+#include "threads/interrupt.h"
+#include "threads/thread.h"
+/*Begin:project2-008*/
+#include "threads/vaddr.h"
+#include "devices/shutdown.h"
+#include "userprog/process.h"
+#include "filesys/filesys.h"
+#include "filesys/file.h"
+#include "devices/input.h"
+/*End:project2-008*/
+
+static void syscall_handler (struct intr_frame *);
+/*Begin:project2-009*/
+/* Reads a byte at user virtual address UADDR.
+   UADDR must be below PHYS_BASE.
+   Returns the byte value if successful, -1 if a segfault occurred. */
+static int
+get_user (const uint8_t *uaddr) //copied from pdf references.
+{
+  int result;
+  asm ("movl $1f, %0; movzbl %1, %0; 1:"
+       : "=&a" (result) : "m" (*uaddr));
+  return result;
+}
+/* Writes BYTE to user address UDST.
+   UDST must be below PHYS_BASE.
+   Returns true if successful, false if a segfault occurred. */
+static bool
+put_user (uint8_t *udst, uint8_t byte) //copied from pdf rederences.
+{
+  int error_code;
+  asm ("movl $1f, %0; movb %b2, %1; 1:"
+       : "=&a" (error_code), "=m" (*udst) : "r" (byte));
+  return error_code != -1;
+}
+/*read-validity-check
+pointer_valid1_r is for reading given length data at user virtual address space.
+pointer_valid2_r is for reading string at user virtual addrss space.
+Both exit current thread if invalid.
+*/
+static void pointer_valid1_r(const uint8_t *uaddr, int length){
+  const uint8_t *max_uaddr = uaddr + length;
+  while(uaddr < max_uaddr){
+    if(uaddr >= (uint8_t *)PHYS_BASE)
+      thread_exit();
+    if(get_user(uaddr++) == -1)
+      thread_exit();
+  }
+}
+static void pointer_valid2_r(const char *uaddr, int max_length){
+  const char *max_uaddr = uaddr + max_length;
+  while(uaddr < max_uaddr){
+    if(uaddr >= (char *)PHYS_BASE)
+      thread_exit();
+    int i = get_user((uint8_t *)uaddr++);
+    if(i == -1){
+      thread_exit();
+    }else{
+      if((char)i == '\0')
+        return;
+    }
+  }
+  thread_exit();
+}
+/*write-validity-check
+  pointer_valid_w is for writting given length data to user virtual address space.
+  Exit current thread if invalid.
+*/
+static void pointer_valid_w(const uint8_t *uaddr, int length){
+  const uint8_t *max_uaddr = uaddr + length;
+  if(max_uaddr >= (uint8_t *)PHYS_BASE)
+      thread_exit();
+  while(uaddr < max_uaddr){
+    if(put_user(uaddr++,0) == -1)//write 0 here just for checking
+      thread_exit();
+  }
+}
+
+static uint32_t get_quad_byte(const uint8_t *uaddr){
+  pointer_valid1_r(uaddr, 4);
+  return *(uint32_t *)uaddr;
+}
+
+static void exit(int status){
+  struct thread *cur = thread_current();
+  cur->exit_status = status;//for later use.
+  thread_exit();
+}
+
+static int wait(pid_t pid){
+  int ret = 0;
+  ret = process_wait(pid);
+  return ret;
+}
+
+static int write(int fd, const void *buffer, unsigned size){
+  pointer_valid1_r(buffer, size);
+  if(fd == STDOUT_FILENO){ //standard output.
+    putbuf(buffer, size);
+    return size;
+  }else if(fd < 2 || fd >= MAX_OPEN_FILES){
+    return -1;
+  }else{
+    struct file *f = thread_current()->open_file[fd];
+    if(f == NULL)
+      return -1;
+    lock_acquire(&file_lock);
+    int ret = file_write(f, buffer, size);
+    lock_release(&file_lock);
+    return ret;
+  }
+}
+/*End:project2-008*/
+
+void
+syscall_init (void) 
+{
+  intr_register_int (0x30, 3, INTR_ON, syscall_handler, "syscall");
+}
+/*Begin:project2-011*/
+
+static void
+syscall_handler (struct intr_frame *f UNUSED) 
+{
+  printf ("system call!\n");
+  thread_exit ();
+}
+
+/*End:project2-011*/
